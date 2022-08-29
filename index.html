@@ -157,10 +157,23 @@ function window_onclick(e) {
 // |     and when Q is used to clear the canvas.
 function paint() {
     var curimg = window.current_image;
+    var imgwidth = curimg.width;
+    var imgheight = curimg.height;
+    var imgorientation 
+        = imgwidth > imgheight 
+        ? 'landscape' 
+        : 'portrait'
+        ;
     var ctx2 = window.ctx2;
     var c2r = canvas2.getBoundingClientRect();
-    var actualWidth = c2r.height*(curimg.width/curimg.height);
-    ctx2.drawImage(curimg, 0, 0, actualWidth, c2r.height);    
+
+    if (imgorientation === 'portrait') {
+        var actualWidth = c2r.height*(curimg.width/curimg.height);
+        ctx2.drawImage(curimg, 0, 0, actualWidth, c2r.height);    
+    } else {
+        var actualHeight = c2r.width*(curimg.height/curimg.width);
+        ctx2.drawImage(curimg, 0, 0, c2r.width, actualHeight);
+    }
 }
 
 function window_onresize() {
