@@ -12,4 +12,4 @@ Image loading expects the image address, one way to get an image address is by r
 
 If you are using a touch device, click the button in the marquee to load the image.
 
-The prototype is intentionally limited in features.
+The prototype is intentionally limited in features and tries maximizing backward compatibility.
