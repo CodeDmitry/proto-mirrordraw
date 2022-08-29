@@ -4,6 +4,8 @@ A quick and dirty prototype for a mirror drawing webapp for learning to trace im
 
 [Click Here](https://codedmitry.github.io/proto-mirrordraw) to visit the webapp.
 
+#[Demo](demo.png)
+
 Instructions:
 - Q to clear
 - E to load image
