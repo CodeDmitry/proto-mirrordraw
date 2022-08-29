@@ -69,12 +69,15 @@ function window_onload() {
     window.canvas2 = document.getElementById('canvas2');
     window.ctx1 = canvas1.getContext('2d');
     window.ctx2 = canvas2.getContext('2d');
-    // | Make the marquee hide itself on click.
+    window.parallel_cursor = document.getElementById('parallel_cursor');
+  
+    // | Bind onclick for the touch device users.
     document.getElementById('touchloader').onclick = touchloader_onclick;
+
+    // | Make the marquee hide itself on click.
     document.getElementById('marquee').onclick = function() {
         this.parentElement.removeChild(this);
     };
-    window.parallel_cursor = document.getElementById('parallel_cursor');
     update_canvas_sizes();    
 }    
 
