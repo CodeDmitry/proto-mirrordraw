@@ -210,8 +210,9 @@ function window_onresize() {
     paint();
 }
 
-// | Called to toggle visibility of the help marquee.
-// | Called by 
+// | Makes the marquee visible or not visible based on the argument.
+// | Called by window_onclick to show.
+// | Called by onpromptedimageloaded to hide.
 function marquee_setVisible(bVisible) {    
     if (bVisible) {
         window.marquee.classList.remove('invisible');
