@@ -1,8 +1,8 @@
 # proto-mirrordraw
 
-A quick and dirty prototype for a "mirror" drawing web application for learning to trace images to develop/test your muscle memory.
-
 [Click Here](https://codedmitry.github.io/proto-mirrordraw) to visit the webapp.
+
+A quick and dirty prototype for a "mirror" drawing web application for learning to trace images to develop/test your muscle memory.
 
 ![Preview](demo.png)
 
