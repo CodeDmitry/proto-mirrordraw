@@ -144,3 +144,8 @@ the "clearCanvas" subroutine
     
     clear the specified canvas(making it transparent), does not alter
     the css canvas background color, which shines through.
+the "marquee_setVisible" subroutine
+    CALLED by window_onclick to show,
+    CALLED by onpromptedimageloaded to hide,
+    
+    makes marquee visible when it is needed and hides it when it is no longer needed.
