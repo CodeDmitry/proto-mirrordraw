@@ -1,0 +1,133 @@
+SECTIONS:
+    style
+        style.elementwise
+        style.auxiliary
+    flow
+        flow.primary-flow
+        flow.post-flow-events
+        flow.post-flow-subroutines
+
+[style]
+[style.elementwise]
+- body 
+    - must have no margin, as it makes it more difficult to reason about the size of the
+        client area, while adding nothing by existing.
+    - must hide its overflow to avoid the mirror cursor from causing the webpage to be resized.
+- the element by id #marquee is fixed positioned at the topleft corner of the client, and  
+    fills 100vw of the client area in width, and 30px in height, uses the white color.
+- the element by the id #canvas1 fills up the left half of the client area via
+    absolute positioning, and has a color distinct from #canvas2.
+- the element by the id #canvas2 fills up the right half of the client are via
+    absolute positioning, and has a color distinct from #canvas1.
+- the element by the id #parallel_cursor is 5px in height and 5px in width,
+    it has a 1pixel solid black border, and white background color.
+[style.auxiliary]
+- the .invisible class is used to hide the marquee until the user seems to need assistance.
+- the .unselectable class is used to prevent the marquee from being selectable.
+
+[flow]
+[flow.primary-flow]
+start state:
+    the webpage reaches the script tag and passes control to it as state 2.
+state 2:
+    the script reserves the global variables it will be using,
+        canvas1 : the html canvas,
+        canvas2 : the html canvas,
+        ctx1 : the context of canvas1,
+        ctx2 : the context of canvas2,
+        parallel_cursor : the mirror preview cursor,
+        current_image : the current image that is loaded
+    
+    it reserves the global callbacks/helpers,
+    
+    it registers these events in the window
+        onload to window_onload,
+        onkeydown to window_onkeydown,
+        onresize to window_onresize,
+        onmousemove to window_onmousemove,
+        onclick to window_onclick
+state 3:
+    the window finishes loading the rest of the document object model, then passes control to
+        window.onload(state 4) which has been set to window_onload in state 2.
+state 4:
+    the window_onload callback function connects the global objects to their respective dom objects
+        using document.getElementById.
+    the [id:touchloader], a control which lets touch users to load images is bound to touchloader_onclick.
+    the [id:marquee]'s onclick is assigned to make it be removed from the dom when clicked.
+    pass control to update_canvas_sizes which sets canvas1 and canvas2's width and height to their
+        bounding rect's actual pixel sizes, to make them pixel perfect.
+    release control to window event loop(state 5).
+state 5:
+    the window event loop juggles the window's 
+        onload to window_onload(already handled and assumed never to be called, 
+            may be worth deleting the handler and removing the event to be safe),
+        onkeydown to window_onkeydown,
+        onresize to window_onresize,
+        onmousemove to window_onmousemove,
+        onclick to window_onclick
+
+    the order of the events are determined by the user's behavior, but only
+    one event is handled at any given time, while others are queued in order.
+
+[flow.post-flow-events]
+WHENEVER a key is pressed, the "onkeydown" event is emitted, passing control 
+    to window_onkeydown, which handles the key "e",
+        by passing control to promptAndLoadImage,
+    and the key "q",
+        by clearing the canvas, and passing control to the "paint" subroutine.
+        
+WHENEVER the window is resized, the "onresize" event is emitted, passing control 
+    to window_onresize, which calls the "update_canvas_sizes()" and then
+        calls the "paint" subroutine.
+
+[heavy] WHENEVER the mouse is moved by the user, the "onmousemove" event is emitted, passing control to 
+    window_onmousemove, which does a whole bunch of things I can't be bothered explaining 
+    right now.
+    
+[heavy] WHENEVER the mouse is clicked by the user, the "onclick" event is emitted, passing control
+    to window_onclick, which i also cannot be bothered to explain right now.
+    
+WHEN the [id:touchloader] is clicked, the "onclick" event is emitted, passing control 
+    to touchloader_onclick, which passes control to the "promptAndLoadImage" subroutine,
+    and stops propogation which may potentially be dead code, but may still be useful
+    if the url specified is invalid. 
+    
+WHEN the [id:marquee] is clicked, the "onclick" event is emitted, passing control
+    to marquee_onclick, which disowns itself from the parent, effectively removing 
+    it from the document object model, as there are no references to it.
+    
+WHEN the prompted image is loaded from whenever, the "onpromptedimageloaded" event is 
+    emitted and control is passed to "onpromptedimageloaded" by the event loop,
+    which hides the marquee as the image has successfully loaded and user clearly already
+    understands how to use the webpage(except perhaps using q to clear).
+    It then passes control to the "paint" subroutine.
+
+[flow.post-flow-subroutines]
+    to my surprise, these actually seem to add a lot of complexity to the code, as they are called
+    synchronously rather than asynchronously, which is intentional, and desired.
+
+the "paint" subroutine",
+    CALLED by onpromptedimageloaded handler,
+    CALLED by window_onkeydown handler,
+    CALLED by window_onresize handler,
+    
+    which is responsible for drawing the global window.current_image
+        in landscape or portrait mode. The specifics of how it does this
+        are involved I can't be bothered explaining them right now. The
+        method does non-intuitive math.
+the "update_canvas_sizes" subroutine,
+    CALLED by window_onload handler,
+    CALLED by window_onresize handler,
+    
+    is responsible for updating each canvas's width and height to the pixel sizes of their bounding
+    rect.
+the "promptAndLoadImage" subroutine,
+    CALLED by touchloader_onclick handler,
+    CALLED by window_onkeydown handler,
+
+    is responsible for 
+        1. prompting for an image, 
+        2. binding the onpromptedimageloaded event to the
+            image's onload
+        3. setting the src to the url specified, starting the load
+        4. binding the image being loaded to the global scope as window.current_image.
