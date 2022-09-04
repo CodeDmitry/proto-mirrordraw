@@ -37,6 +37,8 @@ state 2:
         ctx2 : the context of canvas2,
         parallel_cursor : the mirror preview cursor,
         current_image : the current image that is loaded
+        var marquee : the help marquee for newcomers,
+        var touchloader : the button to help touch users load a url
     
     it reserves the global callbacks/helpers,
     
@@ -131,3 +133,14 @@ the "promptAndLoadImage" subroutine,
             image's onload
         3. setting the src to the url specified, starting the load
         4. binding the image being loaded to the global scope as window.current_image.
+the "brushstroke" subroutine
+    CALLED by window_onmousemove,
+    CALLED by window_onclick,
+    
+    draws a single rectangle(implementation dependant) using the 
+    specified context, at the specified canvas offset.
+the "clearCanvas" subroutine
+    CALLED by window_onkeydown
+    
+    clear the specified canvas(making it transparent), does not alter
+    the css canvas background color, which shines through.
