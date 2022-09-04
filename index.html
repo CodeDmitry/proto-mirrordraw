@@ -169,6 +169,18 @@ function window_onclick(e)
     brushstroke(window.ctx2, e.offsetX, e.offsetY); 
 }
 
+// | Called each time a user's image has finished loading.
+function onpromptedimageloaded() {
+    marquee_setVisible(false);
+    paint();
+}
+
+// | Called on resize to adjust the client sizes and repaint.
+function window_onresize() {
+    update_canvas_sizes();
+    paint();
+}
+
 // Subroutine Definitions
 
 // | Called on window resize and after the prompted image loads,
@@ -196,12 +208,6 @@ function paint()
     }
 }
 
-// | Called on resize to adjust the client sizes and repaint.
-function window_onresize() {
-    update_canvas_sizes();
-    paint();
-}
-
 // | Makes the marquee visible or not visible based on the argument.
 // | Called by window_onclick to show.
 // | Called by onpromptedimageloaded to hide.
@@ -211,12 +217,6 @@ function marquee_setVisible(bVisible) {
     } else {
         window.marquee.classList.add('invisible');
     } 
-}
-
-// | Called each time a user's image has finished loading.
-function onpromptedimageloaded() {
-    marquee_setVisible(false);
-    paint();
 }
 
 // | Called by btnTouchLoader_onclick and window_onkeydown 
