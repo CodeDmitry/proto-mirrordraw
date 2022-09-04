@@ -62,20 +62,26 @@ var ctx1;
 var ctx2;
 var parallel_cursor; 
 var current_image;   
+var marquee;
+var touchloader;
         
 // | Called once when window finished loading.    
-function window_onload() {
+function window_onload() 
+{
     window.canvas1 = document.getElementById('canvas1');
     window.canvas2 = document.getElementById('canvas2');
     window.ctx1 = canvas1.getContext('2d');
     window.ctx2 = canvas2.getContext('2d');
     window.parallel_cursor = document.getElementById('parallel_cursor');
+    window.marquee = document.getElementById('marquee');
+    window.touchloader = document.getElementById('touchloader');
   
     // | Bind onclick for the touch device users.
-    document.getElementById('touchloader').onclick = touchloader_onclick;
+    window.touchloader.onclick = touchloader_onclick;
 
     // | Make the marquee hide itself on click.
-    document.getElementById('marquee').onclick = marquee_onclick;
+    window.marquee.onclick = marquee_onclick;
+
     update_canvas_sizes();    
 }    
 
@@ -87,8 +93,9 @@ function marquee_onclick(e) {
 // | Loads the image for touch users.
 function touchloader_onclick(e) {
     promptAndLoadImage();
-    // | Potentially dead code.
-    e.stopPropogation();
+    // | Do propagate the click to the parent marquee,
+    // |     as that would close it.
+    e.stopPropagation();
 }
 
 // | Called by touchloader_onclick and window_onkeydown 
@@ -108,8 +115,8 @@ function window_onkeydown(evt) {
         return;
     }
     if (evt.code === 'KeyQ') {
-        ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
-        ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
+        clearCanvas(window.canvas1);
+        clearCanvas(window.canvas2);
         paint();
         return;
     }
@@ -117,73 +124,86 @@ function window_onkeydown(evt) {
 
 // | Called on window resize, and at window load.
 function update_canvas_sizes() {
-    canvas1.width = canvas1.getBoundingClientRect().width;
-    canvas1.height = canvas1.getBoundingClientRect().height;
-    canvas2.width = canvas2.getBoundingClientRect().width;
-    canvas2.height = canvas2.getBoundingClientRect().height;
+    window.canvas1.width = window.canvas1.getBoundingClientRect().width;
+    window.canvas1.height = window.canvas1.getBoundingClientRect().height;
+    window.canvas2.width = window.canvas2.getBoundingClientRect().width;
+    window.canvas2.height = window.canvas2.getBoundingClientRect().height;
+}
+
+// | Clear the specified canvas.
+function clearCanvas(canvas) {
+    canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
 }
 
 function window_onmousemove(e) {
-    // | Cached offsets.
+    // | Cached mouse offsets relative to client area.
     var offx = e.offsetX;
     var offy = e.offsetY;
     
     if (e.buttons > 0) {
-        // | For beginners.
+        // | If the user is trying to draw on a blank canvas,
+        // |     show a marquee for instructions how to load one.
         if (window.current_image === undefined) {
-            marquee.classList.remove('invisible');
+            window.marquee.classList.remove('invisible');
         }
-        ctx2.fillRect(offx - 0.5, offy - 0.5, 1, 1);
-        ctx1.fillRect(offx - 0.5, offy - 0.5, 1, 1);
+                
+        // | Draw the brush stroke on both panels.
+        brushstroke(window.ctx1, offx, offy);
+        brushstroke(window.ctx2, offx, offy);
     }
+    
     // | canvas2 rect cache.
-    c2r = canvas2.getBoundingClientRect();
+    var c2r = canvas2.getBoundingClientRect();
     var bodyRect = document.body.getBoundingClientRect();
-    // | New "parallel_cursor" position.
-    var newPcLeft = e.clientX + c2r.x;
-    var newPcTop = e.clientY + c2r.y;
-    parallel_cursor.style.left = newPcLeft+'px';
-    parallel_cursor.style.top = newPcTop+'px';
+    // | New "parallel_cursor" position is relative to the second canvas.
+    var newPcLeft = c2r.x + e.clientX;
+    var newPcTop = c2r.y + e.clientY;
+    parallel_cursor.style.left = newPcLeft + 'px';
+    parallel_cursor.style.top = newPcTop + 'px';
 }
 
-function window_onclick(e) {
-    var offx, offy;
-    if (window.current_image === undefined) {
-        var m = document.getElementById('marquee');
-        m.classList.remove('invisible');
-    } 
+// called by window_onclick, window_onmousemove to draw the brushstrokes.
+function brushstroke(canvasContext, xOffset, yOffset) {
+    canvasContext.fillRect(xOffset-0.5, yOffset-0.5, 1, 1);
+}
 
-    // | Cached offsets.
-    offx = e.offsetX;
-    offy = e.offsetY;
+function window_onclick(e) 
+{
+    // | If the user is trying to draw on an invisible canvas, 
+    // |     make the help marquee visible.
+    if (window.current_image === undefined) {
+        window.marquee.classList.remove('invisible');
+    } 
     
-    ctx2.fillRect(offx, offy, 2, 2);
-    ctx1.fillRect(offx, offy, 2, 2);        
+    brushstroke(window.ctx1, e.offsetX, e.offsetY);
+    brushstroke(window.ctx2, e.offsetX, e.offsetY); 
 }
 
 // | Called on window resize and after the prompted image loads,
 // |     and when Q is used to clear the canvas.
 function paint() {
-    var curimg = window.current_image;
-    var imgwidth = curimg.width;
-    var imgheight = curimg.height;
-    var imgorientation 
-        = imgwidth > imgheight 
+    var curImg = window.current_image;
+    var imgWidth = curImg.width;
+    var imgHeight = curImg.height;
+    var imgOrientation 
+        = imgWidth > imgHeight 
         ? 'landscape' 
         : 'portrait'
         ;
     var ctx2 = window.ctx2;
     var c2r = canvas2.getBoundingClientRect();
+    var aspectRatio = imgWidth / imgHeight;
 
-    if (imgorientation === 'portrait') {
-        var actualWidth = c2r.height*(curimg.width/curimg.height);
-        ctx2.drawImage(curimg, 0, 0, actualWidth, c2r.height);    
+    if (imgOrientation === 'portrait') {
+        var actualWidth = c2r.height*(imgWidth/imgHeight);
+        ctx2.drawImage(curImg, 0, 0, actualWidth, c2r.height);    
     } else {
-        var actualHeight = c2r.width*(curimg.height/curimg.width);
-        ctx2.drawImage(curimg, 0, 0, c2r.width, actualHeight);
+        var actualHeight = c2r.width*(imgHeight/imgWidth);
+        ctx2.drawImage(curImg, 0, 0, c2r.width, actualHeight);
     }
 }
 
+// | Called on resize to adjust the client sizes and repaint.
 function window_onresize() {
     update_canvas_sizes();
     paint();
@@ -214,4 +234,3 @@ window.onclick = window_onclick;
     </div>
   </body>
 </html>
-
