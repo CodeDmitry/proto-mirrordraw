@@ -75,18 +75,24 @@ function window_onload() {
     document.getElementById('touchloader').onclick = touchloader_onclick;
 
     // | Make the marquee hide itself on click.
-    document.getElementById('marquee').onclick = function() {
-        this.parentElement.removeChild(this);
-    };
+    document.getElementById('marquee').onclick = marquee_onclick;
     update_canvas_sizes();    
 }    
 
+// | Removes the marquee when it is clicked, as it is visually distracting.
+function marquee_onclick(e) {
+    this.parentElement.removeChild(this);
+}
+
+// | Loads the image for touch users.
 function touchloader_onclick(e) {
-    console.log("X");
     promptAndLoadImage();
+    // | Potentially dead code.
     e.stopPropogation();
 }
 
+// | Called by touchloader_onclick and window_onkeydown 
+// |     to prompt user for a url and try loading the image. 
 function promptAndLoadImage() {
     var url = prompt('Please enter the URL of your image.');
     console.log("url", url);
