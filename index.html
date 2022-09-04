@@ -56,6 +56,14 @@ body {
 }
     </style>
     <script>
+// outline:
+//     Global Declarations
+//     Event Callback Definitions
+//     Subroutine Definitions
+//     Event Hookups
+
+// Global Declarations   
+    
 var canvas1;
 var canvas2;
 var ctx1;
@@ -64,6 +72,8 @@ var parallel_cursor;
 var current_image;   
 var marquee;
 var btnTouchLoader;
+
+// Event Callback Definitions
         
 // | Called once when window finished loading.    
 function window_onload() 
@@ -98,16 +108,6 @@ function btnTouchLoader_onclick(e) {
     e.stopPropagation();
 }
 
-// | Called by btnTouchLoader_onclick and window_onkeydown 
-// |     to prompt user for a url and try loading the image. 
-function promptAndLoadImage() {
-    var url = prompt('Please enter the URL of your image.');
-    var img = new Image();
-    img.onload = onpromptedimageloaded;
-    img.src = url;
-    window.current_image = img;
-}
-
 // | Called on each keypress.
 function window_onkeydown(evt) {
     if (evt.code === 'KeyE') {
@@ -120,19 +120,6 @@ function window_onkeydown(evt) {
         paint();
         return;
     }
-}
-
-// | Called on window resize, and at window load.
-function update_canvas_sizes() {
-    window.canvas1.width = window.canvas1.getBoundingClientRect().width;
-    window.canvas1.height = window.canvas1.getBoundingClientRect().height;
-    window.canvas2.width = window.canvas2.getBoundingClientRect().width;
-    window.canvas2.height = window.canvas2.getBoundingClientRect().height;
-}
-
-// | Clear the specified canvas.
-function clearCanvas(canvas) {
-    canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
 }
 
 function window_onmousemove(e) {
@@ -162,11 +149,6 @@ function window_onmousemove(e) {
     parallel_cursor.style.top = newPcTop + 'px';
 }
 
-// called by window_onclick, window_onmousemove to draw the brushstrokes.
-function brushstroke(canvasContext, xOffset, yOffset) {
-    canvasContext.fillRect(xOffset-0.5, yOffset-0.5, 1, 1);
-}
-
 function window_onclick(e) 
 {
     // | If the user is trying to draw on an invisible canvas, 
@@ -178,6 +160,8 @@ function window_onclick(e)
     brushstroke(window.ctx1, e.offsetX, e.offsetY);
     brushstroke(window.ctx2, e.offsetX, e.offsetY); 
 }
+
+// Subroutine Definitions
 
 // | Called on window resize and after the prompted image loads,
 // |     and when Q is used to clear the canvas.
@@ -226,6 +210,36 @@ function onpromptedimageloaded() {
     marquee_setVisible(false);
     paint();
 }
+
+// | Called by btnTouchLoader_onclick and window_onkeydown 
+// |     to prompt user for a url and try loading the image. 
+function promptAndLoadImage() {
+    var url = prompt('Please enter the URL of your image.');
+    var img = new Image();
+    img.onload = onpromptedimageloaded;
+    img.src = url;
+    window.current_image = img;
+}
+
+// | Clear the specified canvas.
+function clearCanvas(canvas) {
+    canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+}
+
+// | Called on window resize, and at window load.
+function update_canvas_sizes() {
+    window.canvas1.width = window.canvas1.getBoundingClientRect().width;
+    window.canvas1.height = window.canvas1.getBoundingClientRect().height;
+    window.canvas2.width = window.canvas2.getBoundingClientRect().width;
+    window.canvas2.height = window.canvas2.getBoundingClientRect().height;
+}
+
+// called by window_onclick, window_onmousemove to draw the brushstrokes.
+function brushstroke(canvasContext, xOffset, yOffset) {
+    canvasContext.fillRect(xOffset-0.5, yOffset-0.5, 1, 1);
+}
+
+// Event Hookups
     
 window.onload = window_onload;    
 window.onkeydown = window_onkeydown;
