@@ -95,7 +95,6 @@ function touchloader_onclick(e) {
 // |     to prompt user for a url and try loading the image. 
 function promptAndLoadImage() {
     var url = prompt('Please enter the URL of your image.');
-    console.log("url", url);
     var img = new Image();
     img.onload = onpromptedimageloaded;
     img.src = url;
