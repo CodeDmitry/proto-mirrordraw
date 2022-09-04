@@ -63,7 +63,7 @@ var ctx2;
 var parallel_cursor; 
 var current_image;   
 var marquee;
-var touchloader;
+var btnTouchLoader;
         
 // | Called once when window finished loading.    
 function window_onload() 
@@ -74,10 +74,10 @@ function window_onload()
     window.ctx2 = canvas2.getContext('2d');
     window.parallel_cursor = document.getElementById('parallel_cursor');
     window.marquee = document.getElementById('marquee');
-    window.touchloader = document.getElementById('touchloader');
+    window.btnTouchLoader = document.getElementById('btnTouchLoader');
   
     // | Bind onclick for the touch device users.
-    window.touchloader.onclick = touchloader_onclick;
+    window.btnTouchLoader.onclick = btnTouchLoader_onclick;
 
     // | Make the marquee hide itself on click.
     window.marquee.onclick = marquee_onclick;
@@ -91,14 +91,14 @@ function marquee_onclick(e) {
 }
 
 // | Loads the image for touch users.
-function touchloader_onclick(e) {
+function btnTouchLoader_onclick(e) {
     promptAndLoadImage();
     // | Do propagate the click to the parent marquee,
     // |     as that would close it.
     e.stopPropagation();
 }
 
-// | Called by touchloader_onclick and window_onkeydown 
+// | Called by btnTouchLoader_onclick and window_onkeydown 
 // |     to prompt user for a url and try loading the image. 
 function promptAndLoadImage() {
     var url = prompt('Please enter the URL of your image.');
@@ -172,7 +172,7 @@ function window_onclick(e)
     // | If the user is trying to draw on an invisible canvas, 
     // |     make the help marquee visible.
     if (window.current_image === undefined) {
-        window.marquee.classList.remove('invisible');
+        marquee_setVisible(true);
     } 
     
     brushstroke(window.ctx1, e.offsetX, e.offsetY);
@@ -181,7 +181,8 @@ function window_onclick(e)
 
 // | Called on window resize and after the prompted image loads,
 // |     and when Q is used to clear the canvas.
-function paint() {
+function paint() 
+{
     var curImg = window.current_image;
     var imgWidth = curImg.width;
     var imgHeight = curImg.height;
@@ -209,12 +210,19 @@ function window_onresize() {
     paint();
 }
 
+// | Called to toggle visibility of the help marquee.
+// | Called by 
+function marquee_setVisible(bVisible) {    
+    if (bVisible) {
+        window.marquee.classList.remove('invisible');
+    } else {
+        window.marquee.classList.add('invisible');
+    } 
+}
+
 // | Called each time a user's image has finished loading.
 function onpromptedimageloaded() {
-    // | Hide the marquee, as the user already knows what to do.
-    try {
-        document.getElementById('marquee').outerHTML = '';
-    } catch(e) {}
+    marquee_setVisible(false);
     paint();
 }
     
@@ -230,7 +238,7 @@ window.onclick = window_onclick;
     <canvas id="canvas2"></canvas>
     <div id="parallel_cursor"></div>
     <div id="marquee" class="invisible">
-      <marquee class="unselectable">Press the E key to load an image address, Q to clear canvas. (Click to hide) <button id="touchloader">Click Here</button> to load on a touch device.</marquee>
+      <marquee class="unselectable">Press the E key to load an image address, Q to clear canvas. (Click to hide) <button id="btnTouchLoader">Click Here</button> to load on a touch device.</marquee>
     </div>
   </body>
 </html>
